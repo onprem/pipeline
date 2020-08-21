@@ -17,11 +17,11 @@ type TaskStatus string
 
 // Various possible task status.
 const (
-	TaskNotStarted TaskStatus = "notstarted"
+	TaskNotStarted TaskStatus = "not-started"
 	TaskRunning    TaskStatus = "running"
 	TaskPaused     TaskStatus = "paused"
 	TaskTerminated TaskStatus = "terminated"
-	TaskGotError   TaskStatus = "goterror"
+	TaskGotError   TaskStatus = "got-error"
 	TaskFinished   TaskStatus = "finished"
 )
 
@@ -51,31 +51,61 @@ func NewTask(path string) *Task {
 }
 
 // Run is used to start the task.
+// No effect if task is not in not started status.
 func (t *Task) Run() {
+	if t.State != TaskNotStarted {
+		return
+	}
+
 	t.update(TaskRunning)
 	go t.process()
+	log.Printf("[%s] running\n", t.ID)
 }
 
 // Pause function pauses a running task.
+// If task is not running it doesn't have any effect.
 func (t *Task) Pause() {
+	if t.State != TaskRunning {
+		return
+	}
+
 	t.update(TaskPaused)
 	t.pause <- struct{}{}
+	log.Printf("[%s] paused\n", t.ID)
 }
 
 // Resume function resumes a paused task.
 // If task is not paused it doesn't have any effect.
 func (t *Task) Resume() {
+	if t.State != TaskPaused {
+		return
+	}
+
 	t.update(TaskRunning)
 	t.resume <- struct{}{}
+	log.Printf("[%s] resumed\n", t.ID)
+}
+
+// Terminate will kill the running/paused task.
+// Doesn't have any effect on already finished/terminated tasks.
+func (t *Task) Terminate() {
+	if !(t.State == TaskRunning || t.State == TaskPaused) {
+		return
+	}
+
+	t.terminate <- struct{}{}
 }
 
 func (t *Task) finish() {
 	t.update(TaskFinished)
+	t.cleanup()
 	log.Printf("[%s] finished\n", t.ID)
+}
 
-	close(t.pause)
-	close(t.resume)
-	close(t.terminate)
+func (t *Task) kill() {
+	t.update(TaskTerminated)
+	t.cleanup()
+	log.Printf("[%s] terminated\n", t.ID)
 }
 
 func (t *Task) error(err error) {
@@ -96,8 +126,16 @@ func (t *Task) process() {
 Out:
 	for {
 		select {
+		case <-t.terminate:
+			t.kill()
+			return
 		case <-t.pause:
-			<-t.resume
+			select {
+			case <-t.resume:
+			case <-t.terminate:
+				t.kill()
+				return
+			}
 		default:
 			record, err := csvR.Read()
 			if err == io.EOF {
@@ -120,4 +158,10 @@ func (t *Task) update(status TaskStatus) {
 	t.mutex.Lock()
 	t.State = status
 	t.mutex.Unlock()
+}
+
+func (t *Task) cleanup() {
+	close(t.pause)
+	close(t.resume)
+	close(t.terminate)
 }

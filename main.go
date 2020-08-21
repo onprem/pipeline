@@ -103,6 +103,23 @@ func handleResume(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "task %s resumed\n", task.ID)
 }
 
+func handleTerminate(w http.ResponseWriter, r *http.Request) {
+	taskID := r.FormValue("id")
+	if taskID == "" {
+		http.Error(w, "id is required", http.StatusBadRequest)
+		return
+	}
+
+	task, ok := taskStore[taskID]
+	if !ok {
+		http.Error(w, "invalid task id", http.StatusBadRequest)
+		return
+	}
+
+	task.Terminate()
+	fmt.Fprintf(w, "task %s terminated\n", task.ID)
+}
+
 func main() {
 	// Set up directory for uploads
 	err := os.MkdirAll(uploadDir, 0755)
@@ -118,6 +135,7 @@ func main() {
 	http.HandleFunc("/status", handleStatus)
 	http.HandleFunc("/pause", handlePause)
 	http.HandleFunc("/resume", handleResume)
+	http.HandleFunc("/terminate", handleTerminate)
 
 	log.Println("Web server started")
 	log.Fatalln(http.ListenAndServe(":8080", nil))

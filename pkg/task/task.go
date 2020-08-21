@@ -1,4 +1,4 @@
-package main
+package task
 
 import (
 	"encoding/csv"
@@ -12,24 +12,24 @@ import (
 	"github.com/google/uuid"
 )
 
-// TaskStatus represents current status of a task.
-type TaskStatus string
+// Status represents current status of a task.
+type Status string
 
 // Various possible task status.
 const (
-	TaskNotStarted TaskStatus = "not-started"
-	TaskRunning    TaskStatus = "running"
-	TaskPaused     TaskStatus = "paused"
-	TaskTerminated TaskStatus = "terminated"
-	TaskGotError   TaskStatus = "got-error"
-	TaskFinished   TaskStatus = "finished"
+	TaskNotStarted Status = "not-started"
+	TaskRunning    Status = "running"
+	TaskPaused     Status = "paused"
+	TaskTerminated Status = "terminated"
+	TaskGotError   Status = "got-error"
+	TaskFinished   Status = "finished"
 )
 
 // Task represents a processing task in our system.
 type Task struct {
 	ID       string
 	FilePath string
-	State    TaskStatus
+	State    Status
 	Err      error
 
 	pause     chan struct{}
@@ -154,7 +154,7 @@ func processRecord(record []string) {
 	time.Sleep(time.Duration(r) * time.Millisecond)
 }
 
-func (t *Task) update(status TaskStatus) {
+func (t *Task) update(status Status) {
 	t.mutex.Lock()
 	t.State = status
 	t.mutex.Unlock()

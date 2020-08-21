@@ -71,6 +71,7 @@ func (t *Task) Resume() {
 
 func (t *Task) finish() {
 	t.update(TaskFinished)
+	log.Printf("[%s] finished\n", t.ID)
 
 	close(t.pause)
 	close(t.resume)
@@ -103,6 +104,7 @@ Out:
 				break Out
 			}
 			processRecord(record)
+			log.Printf("[%s] processed: %v\n", t.ID, record)
 		}
 	}
 
@@ -112,7 +114,6 @@ Out:
 func processRecord(record []string) {
 	r := rand.Intn(1000)
 	time.Sleep(time.Duration(r) * time.Millisecond)
-	log.Println("processed: ", record)
 }
 
 func (t *Task) update(status TaskStatus) {

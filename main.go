@@ -25,6 +25,14 @@ func main() {
 
 	mux := http.NewServeMux()
 
+	index, err := getIndexHTML()
+	if err != nil {
+		log.Fatalln(err)
+	}
+	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		w.Write(index)
+	})
+
 	pipelineAPI := api.NewAPI(uploadDir)
 	pipelineAPI.Register(mux)
 

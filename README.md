@@ -6,6 +6,10 @@ Experimenting with pauseable, resumable tasks in a web service.
 
 ### Using Docker
 
+Run `docker run -it -p 8080:8080 prmsrswt/pipeline`. The API will be accessible on `http://localhost:8080`.
+
+#### Building image yourself
+
 - Build the image using the provided Dockerfile.
 
   ```

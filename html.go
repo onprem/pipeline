@@ -11,7 +11,7 @@ import (
 )
 
 func getIndexHTML() ([]byte, error) {
-	src, err := ioutil.ReadFile("README.md")
+	src, err := Asset("README.md")
 	if err != nil {
 		return nil, err
 	}
@@ -33,7 +33,7 @@ func getIndexHTML() ([]byte, error) {
 		return nil, err
 	}
 
-	tpl := template.Must(template.New("index.html").ParseFiles("templates/index.html"))
+	tpl := template.Must(template.New("index.html").Parse(string(MustAsset("templates/index.html"))))
 	data := struct{ Body string }{Body: string(b)}
 
 	var idx bytes.Buffer

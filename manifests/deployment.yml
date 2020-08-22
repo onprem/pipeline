@@ -16,6 +16,6 @@ spec:
     spec:
       containers:
         - name: pipeline
-          image: prmsrswt/pipeline:0.2.1
+          image: prmsrswt/pipeline:0.2.2
           ports:
             - containerPort: 8080

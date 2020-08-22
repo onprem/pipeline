@@ -30,6 +30,10 @@ Run `docker run -it -p 8080:8080 prmsrswt/pipeline`. The API will be accessible 
 
 - The binary will now be available inside your `$GOPATH/bin` (`~/go/bin` in most cases). You can simply run it using `~/go/bin/pipeline`.
 
+### Kubernetes
+
+You can find example manifests in the `manifests/` directory. Modify them according to your needs and deploy using `kubectl create -f ./manifests`.
+
 ## API reference
 
 #### `/upload` - Upload CSV file

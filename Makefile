@@ -91,3 +91,5 @@ clean:
 	@rm coverage.html || true
 	@echo ">> deleting binaries"
 	@rm build/* || true
+	@echo ">> deleting uploads"
+	@rm uploads/* || true

@@ -21,10 +21,15 @@ func NewAPI(uploadDir string) *API {
 }
 
 // Register function registers the routes and handlers.
-func (a *API) Register() {
-	http.HandleFunc("/upload", a.handleUpload)
-	http.HandleFunc("/status", a.handleStatus)
-	http.HandleFunc("/pause", a.handlePause)
-	http.HandleFunc("/resume", a.handleResume)
-	http.HandleFunc("/terminate", a.handleTerminate)
+func (a *API) Register(mux *http.ServeMux) {
+	mux.HandleFunc("/upload", a.handleUpload)
+	mux.HandleFunc("/status", a.handleStatus)
+	mux.HandleFunc("/pause", a.handlePause)
+	mux.HandleFunc("/resume", a.handleResume)
+	mux.HandleFunc("/terminate", a.handleTerminate)
+}
+
+type response struct {
+	Status string      `json:"status"`
+	Data   interface{} `json:"data"`
 }

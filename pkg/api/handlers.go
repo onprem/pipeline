@@ -1,7 +1,7 @@
 package api
 
 import (
-	"fmt"
+	"encoding/json"
 	"io"
 	"log"
 	"net/http"
@@ -42,13 +42,24 @@ func (a *API) handleUpload(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	task := task.NewTask(id, filePath)
-	a.taskStore[task.ID] = task
+	t := task.NewTask(id, filePath)
+	a.taskStore[t.ID] = t
 
-	task.Run()
+	t.Run()
 
 	log.Println("[success] file uploaded: ", handler.Filename)
-	fmt.Fprintf(w, "Upload successful\ntaskID: %s\n", task.ID)
+
+	resp, err := json.Marshal(response{Status: "success", Data: map[string]string{"id": t.ID}})
+	if err != nil {
+		http.Error(w, "error encoding response", http.StatusInternalServerError)
+		log.Println("[error] encoding response: ", err)
+		return
+	}
+
+	_, err = w.Write(resp)
+	if err != nil {
+		log.Println("[error] responding: ", err)
+	}
 }
 
 func (a *API) handleStatus(w http.ResponseWriter, r *http.Request) {
@@ -58,13 +69,23 @@ func (a *API) handleStatus(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	task, ok := a.taskStore[taskID]
+	t, ok := a.taskStore[taskID]
 	if !ok {
 		http.Error(w, "invalid task id", http.StatusBadRequest)
 		return
 	}
 
-	fmt.Fprintf(w, "status: %s\n", task.State)
+	resp, err := json.Marshal(response{Status: "success", Data: map[string]task.Status{"status": t.State}})
+	if err != nil {
+		http.Error(w, "error encoding response", http.StatusInternalServerError)
+		log.Println("[error] encoding response: ", err)
+		return
+	}
+
+	_, err = w.Write(resp)
+	if err != nil {
+		log.Println("[error] responding: ", err)
+	}
 }
 
 func (a *API) handlePause(w http.ResponseWriter, r *http.Request) {
@@ -74,14 +95,24 @@ func (a *API) handlePause(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	task, ok := a.taskStore[taskID]
+	t, ok := a.taskStore[taskID]
 	if !ok {
 		http.Error(w, "invalid task id", http.StatusBadRequest)
 		return
 	}
 
-	task.Pause()
-	fmt.Fprintf(w, "task %s paused\n", task.ID)
+	t.Pause()
+	resp, err := json.Marshal(response{Status: "success", Data: map[string]string{"message": "task paused"}})
+	if err != nil {
+		http.Error(w, "error encoding response", http.StatusInternalServerError)
+		log.Println("[error] encoding response: ", err)
+		return
+	}
+
+	_, err = w.Write(resp)
+	if err != nil {
+		log.Println("[error] responding: ", err)
+	}
 }
 
 func (a *API) handleResume(w http.ResponseWriter, r *http.Request) {
@@ -91,14 +122,24 @@ func (a *API) handleResume(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	task, ok := a.taskStore[taskID]
+	t, ok := a.taskStore[taskID]
 	if !ok {
 		http.Error(w, "invalid task id", http.StatusBadRequest)
 		return
 	}
 
-	task.Resume()
-	fmt.Fprintf(w, "task %s resumed\n", task.ID)
+	t.Resume()
+	resp, err := json.Marshal(response{Status: "success", Data: map[string]string{"message": "task resumed"}})
+	if err != nil {
+		http.Error(w, "error encoding response", http.StatusInternalServerError)
+		log.Println("[error] encoding response: ", err)
+		return
+	}
+
+	_, err = w.Write(resp)
+	if err != nil {
+		log.Println("[error] responding: ", err)
+	}
 }
 
 func (a *API) handleTerminate(w http.ResponseWriter, r *http.Request) {
@@ -108,12 +149,22 @@ func (a *API) handleTerminate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	task, ok := a.taskStore[taskID]
+	t, ok := a.taskStore[taskID]
 	if !ok {
 		http.Error(w, "invalid task id", http.StatusBadRequest)
 		return
 	}
 
-	task.Terminate()
-	fmt.Fprintf(w, "task %s terminated\n", task.ID)
+	t.Terminate()
+	resp, err := json.Marshal(response{Status: "success", Data: map[string]string{"message": "task terminated"}})
+	if err != nil {
+		http.Error(w, "error encoding response", http.StatusInternalServerError)
+		log.Println("[error] encoding response: ", err)
+		return
+	}
+
+	_, err = w.Write(resp)
+	if err != nil {
+		log.Println("[error] responding: ", err)
+	}
 }

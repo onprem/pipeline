@@ -23,9 +23,11 @@ func main() {
 	// Seed randon number generator
 	rand.Seed(time.Now().UnixNano())
 
+	mux := http.NewServeMux()
+
 	pipelineAPI := api.NewAPI(uploadDir)
-	pipelineAPI.Register()
+	pipelineAPI.Register(mux)
 
 	log.Println("Web server started")
-	log.Fatalln(http.ListenAndServe(":8080", nil))
+	log.Fatalln(http.ListenAndServe(":8080", mux))
 }

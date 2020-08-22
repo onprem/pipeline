@@ -8,8 +8,6 @@ import (
 	"os"
 	"sync"
 	"time"
-
-	"github.com/google/uuid"
 )
 
 // Status represents current status of a task.
@@ -39,9 +37,9 @@ type Task struct {
 }
 
 // NewTask returns an initialized instance of task.
-func NewTask(path string) *Task {
+func NewTask(id, path string) *Task {
 	return &Task{
-		ID:        uuid.New().String(),
+		ID:        id,
 		FilePath:  path,
 		State:     TaskNotStarted,
 		pause:     make(chan struct{}),

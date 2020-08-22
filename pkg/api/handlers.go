@@ -9,6 +9,8 @@ import (
 	"path"
 
 	"github.com/prmsrswt/pipeline/pkg/task"
+
+	"github.com/google/uuid"
 )
 
 func (a *API) handleUpload(w http.ResponseWriter, r *http.Request) {
@@ -22,8 +24,10 @@ func (a *API) handleUpload(w http.ResponseWriter, r *http.Request) {
 	}
 	defer file.Close()
 
+	id := uuid.New().String()
+
 	// Create a file locally
-	filePath := path.Join(a.uploadDir, handler.Filename)
+	filePath := path.Join(a.uploadDir, id+handler.Filename)
 	dst, err := os.Create(filePath)
 	if err != nil {
 		http.Error(w, "error creating file", http.StatusInternalServerError)
@@ -38,7 +42,7 @@ func (a *API) handleUpload(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	task := task.NewTask(filePath)
+	task := task.NewTask(id, filePath)
 	a.taskStore[task.ID] = task
 
 	task.Run()

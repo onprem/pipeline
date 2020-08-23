@@ -1,3 +1,6 @@
+//go:generate go-bindata -pkg main -o bindata.go README.md templates/...
+//go:generate go fmt .
+
 package main
 
 import (

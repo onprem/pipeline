@@ -45,11 +45,8 @@ build: assets
 .PHONY: assets
 assets: ## Repacks all static assets into go file for easier deploy.
 assets: $(GOBINDATA)
-	@echo ">> deleting asset file"
-	@rm bindata.go || true
-	@echo ">> writing assets"
-	@go-bindata -pkg main -o bindata.go README.md templates/...
-	@go fmt .
+	@echo ">> generating assets"
+	@go generate
 
 
 .PHONY: docker

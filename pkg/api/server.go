@@ -1,6 +1,7 @@
 package api
 
 import (
+	"encoding/json"
 	"net/http"
 
 	"github.com/prmsrswt/pipeline/pkg/task"
@@ -32,4 +33,33 @@ func (a *API) Register(mux *http.ServeMux) {
 type response struct {
 	Status string      `json:"status"`
 	Data   interface{} `json:"data"`
+}
+
+func respond(w http.ResponseWriter, resp response, code int) error {
+	payload, err := json.Marshal(resp)
+	if err != nil {
+		return err
+	}
+
+	w.WriteHeader(code)
+	_, err = w.Write(payload)
+	return err
+}
+
+func respondError(w http.ResponseWriter, message string, code int) {
+	respond(w, response{Status: "error", Data: map[string]string{"message": message}}, code)
+}
+
+func respondSuccess(w http.ResponseWriter, data interface{}) {
+	respond(w, response{Status: "success", Data: data}, http.StatusOK)
+}
+
+func (a *API) getTaskFromReq(r *http.Request) (*task.Task, bool) {
+	taskID := r.FormValue("id")
+	if taskID == "" {
+		return nil, false
+	}
+
+	t, ok := a.taskStore[taskID]
+	return t, ok
 }

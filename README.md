@@ -1,4 +1,4 @@
-# Pipeline: Atlan - Backend Engineering Intern - Task
+# `Pipeline`
 
 Experimenting with pauseable, resumable tasks in a web service.
 

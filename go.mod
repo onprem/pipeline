@@ -1,4 +1,4 @@
-module github.com/prmsrswt/pipeline
+module github.com/onprem/pipeline
 
 go 1.15
 
